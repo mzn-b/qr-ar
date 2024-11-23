@@ -6,38 +6,40 @@ const App: React.FC = () => {
   const [qrText, setQrText] = useState<string>("Scanning...");
 
   useEffect(() => {
-    const codeReader = new BrowserQRCodeReader();
-    let activeDeviceId: string | null = null;
-
     const startScanner = async () => {
       try {
-        const videoInputDevices = await codeReader.listVideoInputDevices();
-        activeDeviceId = videoInputDevices[0]?.deviceId || null;
-
-        if (activeDeviceId && videoRef.current) {
-          codeReader.decodeFromVideoDevice(
-            activeDeviceId,
-            videoRef.current,
-            (result, err) => {
-              if (result) {
-                setQrText(result.getText()); // Display the QR code text
-              } else if (err) {
-                console.error(err);
-              }
-            }
-          );
+        // Request video stream from user's camera
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+  
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+          videoRef.current.play();
         }
+  
+        const codeReader = new BrowserQRCodeReader();
+        codeReader.decodeFromVideoDevice(null, videoRef.current!, (result, err) => {
+          if (result) {
+            setQrText(result.getText()); // Set scanned QR text
+          } else if (err ) {
+            console.error(err);
+          }
+        });
       } catch (error) {
-        console.error("Error starting scanner:", error);
+        console.error("Camera access error:", error);
+        setQrText("Unable to access camera");
       }
     };
-
+  
     startScanner();
-
+  
     return () => {
-      codeReader.reset();
+      const stream = videoRef.current?.srcObject as MediaStream;
+      if (stream) {
+        stream.getTracks().forEach((track) => track.stop());
+      }
     };
   }, []);
+  
 
   return (
     <div className="scanner-container">

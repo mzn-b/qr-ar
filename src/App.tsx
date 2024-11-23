@@ -11,6 +11,7 @@ const App: React.FC = () => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [qrBounds, setQrBounds] = useState<{ x: number; y: number; width: number; height: number } | null>(null);
   const [person, setPerson] = useState<Person | null>(null);
+  const [lastSeen, setLastSeen] = useState<number>(Date.now());
 
   useEffect(() => {
     const startScanner = async () => {
@@ -24,8 +25,9 @@ const App: React.FC = () => {
         }
 
         const codeReader = new BrowserQRCodeReader();
-        codeReader.decodeFromVideoDevice(null, videoRef.current!, (result, err) => {
+        codeReader.decodeFromVideoDevice(null, videoRef.current!, (result) => {
           if (result) {
+            setLastSeen(Date.now());
             try {
               // Attempt to parse JSON from the scanned text
               const scannedText = result.getText();
@@ -34,11 +36,9 @@ const App: React.FC = () => {
                 setPerson({ name: parsedData.name, lastName: parsedData.lastName });
               } else {
                 console.warn("JSON does not contain required fields: name and lastName");
-                setPerson(null);
               }
             } catch (e) {
               console.error("Invalid JSON:", e);
-              setPerson(null);
             }
 
             // Calculate the bounding box of the QR code
@@ -57,11 +57,13 @@ const App: React.FC = () => {
                 height: yMax - yMin,
               });
             }
-          } else if (err) {
-            console.error("Decode error:", err);
-            // Clear state if no QR code is detected
-            setQrBounds(null);
-            setPerson(null);
+          } else {
+            const timeDiff = Date.now() - lastSeen;
+            if (timeDiff > 100) {
+              // Clear state if no QR code is detected
+              setQrBounds(null);
+              setPerson(null);
+            }
           }
         });
       } catch (error) {

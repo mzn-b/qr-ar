@@ -97,7 +97,7 @@ const App: React.FC = () => {
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
-            background: "rgba(255, 255, 255, 0.5)",
+            background: "rgba(0, 0, 0, 0.8)",
             color: "white",
             fontSize: `${Math.max(qrBounds.width, qrBounds.height) * 0.1}px`,
             border: "5px solid white",

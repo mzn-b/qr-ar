@@ -1,10 +1,16 @@
 import React, { useEffect, useRef, useState } from "react";
 import { BrowserQRCodeReader, ResultPoint } from "@zxing/library";
 
+interface Person {
+  name: string;
+  lastName: string;
+}
+
 const App: React.FC = () => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [qrText, setQrText] = useState<string>("Scanning...");
   const [qrPosition, setQrPosition] = useState<{ x: number; y: number } | null>(null);
+  const [person, setPerson] = useState<Person | null>(null);
 
   useEffect(() => {
     const startScanner = async () => {
@@ -20,7 +26,22 @@ const App: React.FC = () => {
         const codeReader = new BrowserQRCodeReader();
         codeReader.decodeFromVideoDevice(null, videoRef.current!, (result, err) => {
           if (result) {
-            setQrText(result.getText()); // Set scanned QR text
+            const scannedText = result.getText();
+            setQrText(scannedText);
+
+            try {
+              // Attempt to parse JSON from the scanned text
+              const parsedData = JSON.parse(scannedText);
+              if (parsedData.name && parsedData.lastName) {
+                setPerson({ name: parsedData.name, lastName: parsedData.lastName });
+              } else {
+                console.warn("JSON does not contain required fields: name and lastName");
+                setPerson(null);
+              }
+            } catch (e) {
+              console.error("Invalid JSON:", e);
+              setPerson(null);
+            }
 
             // Calculate the center position of the QR code
             const points = result.getResultPoints();
@@ -66,7 +87,14 @@ const App: React.FC = () => {
             borderRadius: "5px",
           }}
         >
-          {qrText}
+          {person ? (
+            <>
+              <div>Name: {person.name}</div>
+              <div>Last Name: {person.lastName}</div>
+            </>
+          ) : (
+            "Invalid QR Data"
+          )}
         </div>
       )}
     </div>

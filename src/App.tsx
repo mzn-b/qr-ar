@@ -79,8 +79,8 @@ const App: React.FC = () => {
   }, []);
 
   return (
-    <div className="scanner-container" style={{ position: "relative", width: "100%", height: "100%" }}>
-      <video ref={videoRef} className="camera-feed" autoPlay style={{ width: "100%", height: "100%" }}></video>
+    <div className="scanner-container" style={{ position: "relative"/*, width: "100%", height: "100%"*/ }}>
+      <video ref={videoRef} className="camera-feed" autoPlay style={{/* width: "100%", height: "100%" */}}></video>
       {qrBounds && person && (
         <div
           className="qr-overlay"

@@ -8,7 +8,6 @@ interface Person {
 
 const App: React.FC = () => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
-  const [qrText, setQrText] = useState<string>("Scanning...");
   const [qrPosition, setQrPosition] = useState<{ x: number; y: number } | null>(null);
   const [person, setPerson] = useState<Person | null>(null);
 
@@ -27,7 +26,6 @@ const App: React.FC = () => {
         codeReader.decodeFromVideoDevice(null, videoRef.current!, (result, err) => {
           if (result) {
             const scannedText = result.getText();
-            setQrText(scannedText);
 
             try {
               // Attempt to parse JSON from the scanned text
@@ -56,7 +54,6 @@ const App: React.FC = () => {
         });
       } catch (error) {
         console.error("Camera access error:", error);
-        setQrText("Unable to access camera");
       }
     };
 

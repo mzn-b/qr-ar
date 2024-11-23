@@ -8,7 +8,7 @@ interface Person {
 
 const App: React.FC = () => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
-  const [qrPosition, setQrPosition] = useState<{ x: number; y: number } | null>(null);
+  const [qrBounds, setQrBounds] = useState<{ x: number; y: number; width: number; height: number } | null>(null);
   const [person, setPerson] = useState<Person | null>(null);
 
   useEffect(() => {
@@ -25,10 +25,9 @@ const App: React.FC = () => {
         const codeReader = new BrowserQRCodeReader();
         codeReader.decodeFromVideoDevice(null, videoRef.current!, (result, err) => {
           if (result) {
-            const scannedText = result.getText();
-
             try {
               // Attempt to parse JSON from the scanned text
+              const scannedText = result.getText();
               const parsedData = JSON.parse(scannedText);
               if (parsedData.name && parsedData.lastName) {
                 setPerson({ name: parsedData.name, lastName: parsedData.lastName });
@@ -41,15 +40,27 @@ const App: React.FC = () => {
               setPerson(null);
             }
 
-            // Calculate the center position of the QR code
+            // Calculate the bounding box of the QR code
             const points = result.getResultPoints();
-            if (points.length > 0) {
-              const x = points.reduce((sum, p) => sum + (p as ResultPoint).getX(), 0) / points.length;
-              const y = points.reduce((sum, p) => sum + (p as ResultPoint).getY(), 0) / points.length;
-              setQrPosition({ x, y });
+            if (points.length >= 4) {
+              const xValues = points.map((p) => (p as ResultPoint).getX());
+              const yValues = points.map((p) => (p as ResultPoint).getY());
+              const xMin = Math.min(...xValues);
+              const xMax = Math.max(...xValues);
+              const yMin = Math.min(...yValues);
+              const yMax = Math.max(...yValues);
+              setQrBounds({
+                x: xMin,
+                y: yMin,
+                width: xMax - xMin,
+                height: yMax - yMin,
+              });
             }
           } else if (err) {
-            console.error(err);
+            console.error("Decode error:", err);
+            // Clear state if no QR code is detected
+            setQrBounds(null);
+            setPerson(null);
           }
         });
       } catch (error) {
@@ -70,28 +81,31 @@ const App: React.FC = () => {
   return (
     <div className="scanner-container" style={{ position: "relative", width: "100%", height: "100%" }}>
       <video ref={videoRef} className="camera-feed" autoPlay style={{ width: "100%", height: "100%" }}></video>
-      {qrPosition && (
+      {qrBounds && person && (
         <div
           className="qr-overlay"
           style={{
             position: "absolute",
-            top: `${qrPosition.y}px`,
-            left: `${qrPosition.x}px`,
+            top: `${qrBounds.y}px`,
+            left: `${qrBounds.x}px`,
+            width: `${qrBounds.width}px`,
+            height: `${qrBounds.height}px`,
             transform: "translate(-50%, -50%)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
             background: "rgba(0, 0, 0, 0.5)",
             color: "white",
-            padding: "5px 10px",
+            fontSize: `${Math.max(qrBounds.width, qrBounds.height) * 0.1}px`,
             borderRadius: "5px",
+            textAlign: "center",
+            pointerEvents: "none",
           }}
         >
-          {person ? (
-            <>
-              <div>Name: {person.name}</div>
-              <div>Last Name: {person.lastName}</div>
-            </>
-          ) : (
-            "Invalid QR Data"
-          )}
+          <>
+            <div>Name: {person.name}</div>
+            <div>Last Name: {person.lastName}</div>
+          </>
         </div>
       )}
     </div>

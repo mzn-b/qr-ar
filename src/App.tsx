@@ -12,7 +12,6 @@ const App: React.FC = () => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [qrBounds, setQrBounds] = useState<{ x: number; y: number; width: number; height: number } | null>(null);
   const [person, setPerson] = useState<Person | null>(null);
-  const [qrRef, setQrRef] =useRef()
 
   useEffect(() => {
     const startScanner = async () => {
@@ -60,7 +59,6 @@ const App: React.FC = () => {
 
               // QR-Code Text auslesen und parsen
               const scannedText = result.getText();
-              setQrRef(scannedText);
               try {
                 const parsedData = JSON.parse(scannedText);
                 if (parsedData.name && parsedData.lastName) {

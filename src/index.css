@@ -1,25 +1,34 @@
-body {
+body, html, #root {
   margin: 0;
   padding: 0;
   font-family: Arial, sans-serif;
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
+  height: 100%;
+  width: 100%;
   background-color: #000;
 }
 
 .scanner-container {
-  position: relative;
+  position: fixed;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
   overflow: hidden;
 }
 
 .camera-feed {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  min-width: 100%; /* Mindestens die Breite des Containers */
+  min-height: 100%; /* Mindestens die Höhe des Containers */
+  width: auto;
+  height: auto;
+  object-fit: cover; /* Video an den Container anpassen */
 }
 
 .overlay {
@@ -32,3 +41,4 @@ body {
   border-radius: 5px;
   font-size: 1.2em;
 }
+

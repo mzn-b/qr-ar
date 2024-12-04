@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
-import { BrowserQRCodeReader, ResultPoint } from "@zxing/library";
-import nameIcon from './assets/name.png'; 
+import { ResultPoint } from "@zxing/library";
+import nameIcon from './assets/name.png';
+import {BrowserQRCodeReader} from "@zxing/browser"; 
 
 interface Person {
   name: string;
@@ -25,7 +26,7 @@ const App: React.FC = () => {
         }
 
         const codeReader = new BrowserQRCodeReader();
-        codeReader.decodeFromVideoDevice(null, videoRef.current!, (result) => {
+        codeReader.decodeFromVideoDevice(undefined, videoRef.current!, (result) => {
           if (result) {
             setLastSeen(Date.now());
             try {
@@ -33,7 +34,7 @@ const App: React.FC = () => {
               const scannedText = result.getText();
               const parsedData = JSON.parse(scannedText);
               if (parsedData.name && parsedData.lastName) {
-                setPerson({ name: parsedData.name, lastName: parsedData.lastName });
+                setPerson({name: parsedData.name, lastName: parsedData.lastName});
               } else {
                 console.warn("JSON does not contain required fields: name and lastName");
               }
@@ -79,7 +80,7 @@ const App: React.FC = () => {
         stream.getTracks().forEach((track) => track.stop());
       }
     };
-  }, []);
+  }, [lastSeen]);
 
   return (
     <div className="scanner-container" style={{ position: "relative"/*, width: "100%", height: "100%"*/ }}>

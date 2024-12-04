@@ -12,6 +12,8 @@ const App: React.FC = () => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [qrBounds, setQrBounds] = useState<{ x: number; y: number; width: number; height: number } | null>(null);
   const [person, setPerson] = useState<Person | null>(null);
+  const x = useRef(0)
+  const y = useRef(0)
 
   useEffect(() => {
     const startScanner = async () => {
@@ -47,18 +49,28 @@ const App: React.FC = () => {
               const yMin = Math.min(...yValues);
               const yMax = Math.max(...yValues);
 
-              // Umrechnung auf die sichtbare Videoanzeige
-              const newBounds = {
-                x: videoBoundingRect.left + xMin * scaleX,
-                y: videoBoundingRect.top + yMin * scaleY,
-                width: (xMax - xMin) * scaleX,
-                height: (yMax - yMin) * scaleY,
-              };
 
-              setQrBounds(newBounds);
+              if (Math.abs(xMin - x.current) > 5 || Math.abs(yMin - y.current) > 5) {
+                // Umrechnung auf die sichtbare Videoanzeige
+                const newBounds = {
+                  x: videoBoundingRect.left + xMin * scaleX,
+                  y: videoBoundingRect.top + yMin * scaleY,
+                  width: (xMax - xMin) * scaleX,
+                  height: (yMax - yMin) * scaleY,
+                };
+
+                setQrBounds(newBounds);
+                x.current = xMin
+                y.current = yMin
+              }else{
+                console.log("Offest to small")
+              }
+
+
 
               // QR-Code Text auslesen und parsen
               const scannedText = result.getText();
+
               try {
                 const parsedData = JSON.parse(scannedText);
                 if (parsedData.name && parsedData.lastName) {

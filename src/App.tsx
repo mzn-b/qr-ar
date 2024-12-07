@@ -1,11 +1,18 @@
 import React, { useEffect, useRef, useState } from "react";
 import { ResultPoint } from "@zxing/library";
 import nameIcon from './assets/name.png'; // Bild-Icon für die Anzeige
+import addressIcon from './assets/adresse.png'; // Bild-Icon für die Anzeige
+import telefonIcon from './assets/telefon.png'; // Bild-Icon für die Anzeige
+import webIcon from './assets/web.png'; // Bild-Icon für die Anzeige
 import { BrowserQRCodeReader } from "@zxing/browser";
 
 interface Person {
   name: string;
   lastName: string;
+  address: String;
+  city: String;
+  tel: String;
+  url: String;
 }
 
 const App: React.FC = () => {
@@ -62,19 +69,17 @@ const App: React.FC = () => {
                 setQrBounds(newBounds);
                 x.current = xMin
                 y.current = yMin
-              }else{
-                console.log("Offest to small")
+              } else {
+                console.log("Offset too small")
               }
-
-
 
               // QR-Code Text auslesen und parsen
               const scannedText = result.getText();
 
               try {
                 const parsedData = JSON.parse(scannedText);
-                if (parsedData.name && parsedData.lastName) {
-                  setPerson({ name: parsedData.name, lastName: parsedData.lastName });
+                if (parsedData.name && parsedData.lastName && parsedData.address && parsedData.city && parsedData.tel && parsedData.url) {
+                  setPerson({ name: parsedData.name, lastName: parsedData.lastName, address: parsedData.address, city: parsedData.city, tel: parsedData.tel, url: parsedData.url });
                 } else {
                   console.warn("QR-Code enthält nicht die erwarteten Felder.");
                 }
@@ -151,7 +156,6 @@ const App: React.FC = () => {
                 <td style={{ fontWeight: "bold", padding: "5px" }}>Name:</td>
                 <td style={{ padding: "5px" }}>{person.name}</td>
               </tr>
-
               {/* Zweite Zeile: Nachname */}
               <tr>
                 <td style={{ textAlign: "center", padding: "5px" }}>
@@ -164,8 +168,64 @@ const App: React.FC = () => {
                     }}
                   />
                 </td>
-                <td style={{ fontWeight: "bold", padding: "5px" }}>Nachname:</td>
+                <td style={{ fontWeight: "bold", padding: "5px" }}>Lastname:</td>
                 <td style={{ padding: "5px" }}>{person.lastName}</td>
+              </tr>
+              <tr>
+                <td style={{ textAlign: "center", padding: "5px" }}>
+                  <img
+                    src={nameIcon}
+                    alt="Address Icon"
+                    style={{
+                      width: "20px",
+                      height: "20px",
+                    }}
+                  />
+                </td>
+                <td style={{ fontWeight: "bold", padding: "5px" }}>Address:</td>
+                <td style={{ padding: "5px" }}>{person.address}</td>
+              </tr>
+              <tr>
+                <td style={{ textAlign: "center", padding: "5px" }}>
+                  <img
+                    src={addressIcon}
+                    alt="Address Icon"
+                    style={{
+                      width: "20px",
+                      height: "20px",
+                    }}
+                  />
+                </td>
+                <td style={{ fontWeight: "bold", padding: "5px" }}>City:</td>
+                <td style={{ padding: "5px" }}>{person.city}</td>
+              </tr>
+              <tr>
+                <td style={{ textAlign: "center", padding: "5px" }}>
+                  <img
+                    src={telefonIcon}
+                    alt="Phone Icon"
+                    style={{
+                      width: "20px",
+                      height: "20px",
+                    }}
+                  />
+                </td>
+                <td style={{ fontWeight: "bold", padding: "5px" }}>Phone:</td>
+                <td style={{ padding: "5px" }}>{person.tel}</td>
+              </tr>
+              <tr>
+                <td style={{ textAlign: "center", padding: "5px" }}>
+                  <img
+                    src={webIcon}
+                    alt="Web Icon"
+                    style={{
+                      width: "20px",
+                      height: "20px",
+                    }}
+                  />
+                </td>
+                <td style={{ fontWeight: "bold", padding: "5px" }}>Web:</td>
+                <td style={{ padding: "5px" }}>{person.url}</td>
               </tr>
             </tbody>
           </table>

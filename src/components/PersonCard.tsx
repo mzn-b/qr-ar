@@ -1,50 +1,53 @@
+// src/components/PersonCard.tsx
 import React from "react";
+import { Person } from "../types/person";
 import nameIcon from '../assets/name.png';
 import addressIcon from '../assets/adresse.png';
 import telefonIcon from '../assets/telefon.png';
 import webIcon from '../assets/web.png';
 import emailIcon from '../assets/email.png';
-import './PersonCard.css'; // Separate CSS für PersonCard
+import '../styles/PersonCard.css';
 
-interface Person {
-    name: string;
-    lastName: string;
-    address: string;
-    city: string;
-    tel: string;
-    url: string;
-    email: string;
-}
-
-interface Props {
+interface PersonCardProps {
     person: Person;
-    style?: React.CSSProperties;
 }
 
-const InfoRow: React.FC<{ icon: string; label: string; value: string }> = ({ icon, label, value }) => (
-    <tr>
-        <td>
-            <img src={icon} alt={`${label} Icon`} />
-        </td>
-        <td className="label">{label}</td>
-        <td>{value}</td>
-    </tr>
-);
-
-const PersonCard: React.FC<Props> = ({ person, style }) => {
+const PersonCard: React.FC<PersonCardProps> = ({ person }) => {
     return (
-        <div className="person-card" style={style}>
-            <table>
-                <tbody>
-                <InfoRow icon={nameIcon} label="Name:" value={person.name} />
-                <InfoRow icon={nameIcon} label="Lastname:" value={person.lastName} />
-                <InfoRow icon={addressIcon} label="Address:" value={person.address} />
-                <InfoRow icon={emailIcon} label="Email:" value={person.email} />
-                <InfoRow icon={telefonIcon} label="Phone:" value={person.tel} />
-                <InfoRow icon={webIcon} label="Web:" value={person.url} />
-                </tbody>
-            </table>
-        </div>
+        <table className="person-card-table">
+            <tbody>
+            <tr>
+                <td className="icon-cell"><img src={nameIcon} alt="Name Icon" /></td>
+                <td className="label">Name:</td>
+                <td>{person.name}</td>
+            </tr>
+            <tr>
+                <td className="icon-cell"><img src={nameIcon} alt="Last Name Icon" /></td>
+                <td className="label">Lastname:</td>
+                <td>{person.lastName}</td>
+            </tr>
+            <tr>
+                <td className="icon-cell"><img src={addressIcon} alt="Address Icon" /></td>
+                <td className="label">Address:</td>
+                <td>{person.address}</td>
+            </tr>
+            <tr>
+                <td className="icon-cell"><img src={emailIcon} alt="Email Icon" /></td>
+                <td className="label">Email:</td>
+                <td>{person.email}</td>
+            </tr>
+            <tr>
+                <td className="icon-cell"><img src={telefonIcon} alt="Phone Icon" /></td>
+                <td className="label">Phone:</td>
+                <td>{person.tel}</td>
+            </tr>
+            <tr>
+                <td className="icon-cell"><img src={webIcon} alt="Web Icon" /></td>
+                <td className="label">Web:</td>
+                <td>{person.url}</td>
+            </tr>
+            </tbody>
+        </table>
     );
 };
 

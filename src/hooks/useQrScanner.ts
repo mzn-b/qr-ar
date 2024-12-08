@@ -1,61 +1,39 @@
-import { useEffect, useState, useRef } from "react";
+
+import { useEffect, useRef, useState } from "react";
+import { ResultPoint } from "@zxing/library"; // Wichtig: unverändert lassen
 import { BrowserQRCodeReader } from "@zxing/browser";
-import { ResultPoint } from "@zxing/library";
+import { Person } from "../types/person";
 
-interface Person {
-    name: string;
-    lastName: string;
-    address: string;
-    city: string;
-    tel: string;
-    url: string;
-    email: string;
-}
-
-interface Bounds {
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-}
-
-interface QRScannerResult {
-    person: Person | null;
-    bounds: Bounds | null;
-}
-
-export function useQRCodeScanner(videoRef: React.RefObject<HTMLVideoElement>): QRScannerResult {
+export function useQrScanner() {
+    const videoRef = useRef<HTMLVideoElement | null>(null);
+    const [qrBounds, setQrBounds] = useState<{ x: number; y: number; width: number; height: number } | null>(null);
     const [person, setPerson] = useState<Person | null>(null);
-    const [qrBounds, setQrBounds] = useState<Bounds | null>(null);
-
-    const xRef = useRef<number>(0);
-    const yRef = useRef<number>(0);
-    const OFFSET_THRESHOLD = 5;
+    const x = useRef(0);
+    const y = useRef(0);
 
     useEffect(() => {
-        let codeReader: BrowserQRCodeReader | null = null;
-        let isMounted = true;
-
-        (async () => {
+        const startScanner = async () => {
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({
                     video: { facingMode: "environment" },
                 });
-                if (videoRef.current && isMounted) {
+                if (videoRef.current) {
                     videoRef.current.srcObject = stream;
                     await videoRef.current.play();
                 }
 
-                codeReader = new BrowserQRCodeReader();
+                const codeReader = new BrowserQRCodeReader();
                 codeReader.decodeFromVideoDevice(undefined, videoRef.current!, (result) => {
-                    if (!isMounted) return;
-
                     if (result) {
                         const points = result.getResultPoints();
                         if (points && points.length >= 4 && videoRef.current) {
                             const video = videoRef.current;
+
+                            // Größe und Position des Videos berechnen (Logik unverändert)
                             const videoBoundingRect = video.getBoundingClientRect();
-                            const { videoWidth, videoHeight } = video;
+                            const videoWidth = video.videoWidth;
+                            const videoHeight = video.videoHeight;
+
                             const scaleX = videoBoundingRect.width / videoWidth;
                             const scaleY = videoBoundingRect.height / videoHeight;
 
@@ -66,27 +44,36 @@ export function useQRCodeScanner(videoRef: React.RefObject<HTMLVideoElement>): Q
                             const yMin = Math.min(...yValues);
                             const yMax = Math.max(...yValues);
 
-                            // Nur aktualisieren, wenn der Offset groß genug ist, um "Flackern" zu vermeiden
-                            if (Math.abs(xMin - xRef.current) > OFFSET_THRESHOLD || Math.abs(yMin - yRef.current) > OFFSET_THRESHOLD) {
+                            if (Math.abs(xMin - x.current) > 5 || Math.abs(yMin - y.current) > 5) {
+                                // Umrechnung auf die sichtbare Videoanzeige (Logik unverändert)
                                 const newBounds = {
                                     x: videoBoundingRect.left + xMin * scaleX,
                                     y: videoBoundingRect.top + yMin * scaleY,
                                     width: (xMax - xMin) * scaleX,
                                     height: (yMax - yMin) * scaleY,
                                 };
+
                                 setQrBounds(newBounds);
-                                xRef.current = xMin;
-                                yRef.current = yMin;
+                                x.current = xMin;
+                                y.current = yMin;
                             }
 
-                            // Versuch, JSON zu parsen
+
+                            const scannedText = result.getText();
                             try {
-                                const scannedText = result.getText();
                                 const parsedData = JSON.parse(scannedText);
                                 if (parsedData.name && parsedData.lastName && parsedData.address && parsedData.city && parsedData.tel && parsedData.url && parsedData.email) {
-                                    setPerson(parsedData);
+                                    setPerson({
+                                        name: parsedData.name,
+                                        lastName: parsedData.lastName,
+                                        address: parsedData.address,
+                                        city: parsedData.city,
+                                        tel: parsedData.tel,
+                                        url: parsedData.url,
+                                        email: parsedData.email
+                                    });
                                 } else {
-                                    console.warn("QR-Code enthält nicht alle erwarteten Felder.");
+                                    console.warn("QR-Code enthält nicht die erwarteten Felder.");
                                 }
                             } catch (e) {
                                 console.error("Ungültiger QR-Code JSON:", e);
@@ -100,18 +87,17 @@ export function useQRCodeScanner(videoRef: React.RefObject<HTMLVideoElement>): Q
             } catch (error) {
                 console.error("Kamera-Zugriffsfehler:", error);
             }
-        })();
+        };
+
+        startScanner();
 
         return () => {
-            isMounted = false;
-            if (videoRef.current?.srcObject) {
-                const stream = videoRef.current.srcObject as MediaStream;
+            const stream = videoRef.current?.srcObject as MediaStream;
+            if (stream) {
                 stream.getTracks().forEach((track) => track.stop());
             }
-
-            // codeReader?.reset();
         };
-    }, [videoRef]);
+    }, []);
 
-    return { person, bounds: qrBounds };
+    return { videoRef, qrBounds, person };
 }

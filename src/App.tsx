@@ -1,12 +1,10 @@
-// src/App.tsx
-import React, { useRef } from "react";
-import { useQRCodeScanner } from "./hooks/useQRCodeScanner";
+//import React from "react";
+import { useQrScanner } from "./hooks/useQrScanner";
 import PersonCard from "./components/PersonCard";
-import './App.css'; // Falls du zusätzliche Styles hast
+import './styles/App.css';
 
-const App: React.FC = () => {
-    const videoRef = useRef<HTMLVideoElement | null>(null);
-    const { person, bounds } = useQRCodeScanner(videoRef);
+function App() {
+    const { videoRef, qrBounds, person } = useQrScanner();
 
     return (
         <div style={{ position: "relative", width: "100%", height: "100%" }}>
@@ -15,20 +13,30 @@ const App: React.FC = () => {
                 style={{ width: "100%", height: "auto", display: "block" }}
                 autoPlay
             ></video>
-            {bounds && person && (
-                <PersonCard
-                    person={person}
+
+            {qrBounds && person && (
+                <div
                     style={{
                         position: "absolute",
-                        top: `${bounds.y}px`,
-                        left: `${bounds.x}px`,
-                        width: `${bounds.width}px`,
-                        height: `${bounds.height}px`
+                        top: `${qrBounds.y}px`,
+                        left: `${qrBounds.x}px`,
+                        width: `${qrBounds.width}px`,
+                        height: `${qrBounds.height}px`,
+                        border: "5px solid white",
+                        background: "rgba(0, 0, 0, 0.8)",
+                        color: "white",
+                        pointerEvents: "none",
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        textAlign: "center",
                     }}
-                />
+                >
+                    <PersonCard person={person} />
+                </div>
             )}
         </div>
     );
-};
+}
 
 export default App;

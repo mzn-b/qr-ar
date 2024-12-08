@@ -1,0 +1,22 @@
+/* src/styles/PersonCard.css */
+.person-card-table {
+    width: 100%;
+    color: white;
+    text-align: left;
+    border-spacing: 5px;
+}
+
+.person-card-table .label {
+    font-weight: bold;
+    padding-right: 10px;
+}
+
+.person-card-table img {
+    width: 20px;
+    height: 20px;
+}
+
+.icon-cell {
+    text-align: center;
+    padding: 5px;
+}

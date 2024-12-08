@@ -1,0 +1,29 @@
+.person-card {
+    border: 5px solid white;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    pointer-events: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.person-card table {
+    width: 100%;
+    color: white;
+    text-align: left;
+}
+
+.person-card img {
+    width: 20px;
+    height: 20px;
+}
+
+.person-card td {
+    padding: 5px;
+}
+
+.person-card .label {
+    font-weight: bold;
+}

@@ -1,4 +1,3 @@
-// src/components/PersonCard.tsx
 import React from "react";
 import { Person } from "../types/person";
 import nameIcon from '../assets/name.png';

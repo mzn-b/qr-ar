@@ -1,4 +1,3 @@
-
 import { useEffect, useRef, useState } from "react";
 import { ResultPoint } from "@zxing/library"; // Wichtig: unverändert lassen
 import { BrowserQRCodeReader } from "@zxing/browser";
